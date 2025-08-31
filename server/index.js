@@ -8,11 +8,11 @@ const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
-const JWT_SECRET = 'secret_123_abc';
+const JWT_SECRET = process.env.JWT_SECRET || 'default_super_secret_key_for_dev';
 
 const allowedOrigins = [
     'http://localhost:5173',
-    'https://car-dashboard-project.vercel.app/'
+    'https://car-dashboard-project.vercel.app'
 ];
 
 const corsOptions = {
@@ -99,6 +99,10 @@ const writeCSV = (filePath, data) => {
         });
     });
 };
+
+app.get('/api', (req, res) => {
+    res.json({ message: 'API is running successfully.' });
+});
 
 app.get('/api/cars', (req, res) => {
     try {
