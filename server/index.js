@@ -12,7 +12,7 @@ const JWT_SECRET = 'secret_123_abc';
 
 const allowedOrigins = [
     'http://localhost:5173',
-    'https://car-dashboard-project-client.vercel.app' 
+    'https://car-dashboard-project.vercel.app/'
 ];
 
 const corsOptions = {
