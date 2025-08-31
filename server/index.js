@@ -8,9 +8,24 @@ const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
-const JWT_SECRET = 'your_super_secret_key_that_is_long_and_secure';
+const JWT_SECRET = 'secret_123_abc';
 
-app.use(cors());
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://car-dashboard-project-client.vercel.app' 
+];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    }
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const dataDir = path.join(__dirname, 'data');
