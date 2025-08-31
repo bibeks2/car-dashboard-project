@@ -1,11 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { jwtDecode } from 'jwt-decode';
 
 const initialState = {
   user: null,
   token: sessionStorage.getItem('token') || null,
   isAuthenticated: !!sessionStorage.getItem('token'),
-  status: 'idle', // for login status
-  signupStatus: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+  status: 'idle',
+  signupStatus: 'idle',
   error: null,
 };
 
@@ -13,7 +14,6 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    // ... login reducers remain the same
     loginRequest: (state) => {
       state.status = 'loading';
     },
@@ -27,8 +27,10 @@ const authSlice = createSlice({
     loginFailure: (state, action) => {
       state.status = 'failed';
       state.error = action.payload;
+      state.isAuthenticated = false;
+      state.user = null;
+      state.token = null;
     },
-    // Signup Reducers
     signupRequest: (state) => {
         state.signupStatus = 'loading';
         state.error = null;
@@ -41,8 +43,24 @@ const authSlice = createSlice({
         state.error = action.payload;
     },
     logout: (state) => {
+      try {
+        const token = state.token;
+        if (token) {
+          const decoded = jwtDecode(token);
+          const userEmail = decoded.email;
+          localStorage.removeItem(`bookmarks_${userEmail}`);
+        }
+      } catch (e) {
+        console.error("Could not clear bookmarks on logout", e);
+      }
+      state.isAuthenticated = false;
+      state.user = null;
+      state.token = null;
+      sessionStorage.removeItem('token');
     },
     hydrateUser: (state, action) => {
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
     },
     resetAuthState: (state) => {
         state.status = 'idle';
@@ -61,7 +79,7 @@ export const {
   signupFailure,
   logout,
   hydrateUser,
-  resetAuthState, // Export the new action
+  resetAuthState,
 } = authSlice.actions;
 
 export default authSlice.reducer;

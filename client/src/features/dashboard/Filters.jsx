@@ -1,4 +1,4 @@
-import React, { useTransition, useMemo } from 'react';
+import React, { useTransition, useMemo, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, TextField, Button, Grid, FormControl, InputLabel, Select, MenuItem, styled } from '@mui/material';
 import { setFilter, applyFilters } from './carsSlice';
@@ -34,7 +34,14 @@ const Filters = () => {
       originCounts: counts
     };
   }, [allData]);
-
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        dispatch(applyFilters());
+      }, 500);
+      return () => {
+         clearTimeout(handler);
+      };
+    }, [filters, dispatch]);
   const handleFilterChange = (event) => {
     const { name, value } = event.target;
     dispatch(setFilter({ name, value }));
@@ -61,7 +68,7 @@ const Filters = () => {
         <Grid item xs={12} sm={6} md={4}>
             <TextField
                 name="q"
-                label="Search by Car Name..."
+                label="Search (live) by Car Name..."
                 variant="outlined"
                 value={filters.q}
                 onChange={handleSearchChange}

@@ -31,7 +31,7 @@ const Dashboard = () => {
               <Filters />
             </Paper>
 
-            <Box sx={{ flexGrow: 1, minHeight: 0 ,mt:5}}>
+            <Box sx={{ flexGrow: 1, minHeight: 500 ,mt:5}}>
               <Grid container spacing={2} sx={{ height: '100%' }}>
                 
                 <Grid sx={{width:'60%'}}>

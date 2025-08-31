@@ -100,11 +100,27 @@ const writeCSV = (filePath, data) => {
     });
 };
 
+const verifyToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.status(403).send("A token is required for authentication");
+    }
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.user = decoded;
+    } catch (err) {
+        return res.status(401).send("Invalid Token");
+    }
+    return next();
+};
+
 app.get('/api', (req, res) => {
     res.json({ message: 'API is running successfully.' });
 });
 
-app.get('/api/cars', (req, res) => {
+app.get('/api/cars', verifyToken, (req, res) => {
     try {
         let filteredCars = [...allCarsData];
         const { q, cylinders, origin, mpg_from, mpg_to, year_from, year_to } = req.query;
@@ -128,7 +144,7 @@ app.post('/api/auth/signup', async (req, res) => {
     try {
         const { email, password } = req.body || {};
         if (!email || !password) {
-            return res.status(400).json({ message: 'Request body is missing or malformed. Ensure Content-Type header is set to application/json.' });
+            return res.status(400).json({ message: 'Request body is missing or malformed.' });
         }
         if (password.length < 6) {
             return res.status(400).json({ message: 'Password must be at least 6 characters long.'});
@@ -170,6 +186,10 @@ app.post('/api/auth/login', async (req, res) => {
         console.error('Login Error:', error);
         res.status(500).json({ message: 'Server error during login.' });
     }
+});
+
+app.post('/api/auth/logout', verifyToken, (req, res) => {
+    res.status(200).send({ message: "Logout successful." });
 });
 
 loadCarData()
